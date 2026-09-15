@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SmartServe AI | QR Ordering</title>
+<style>
+:root{
+  --bg:#f6f8fc;--card:#fff;--ink:#172033;--muted:#667085;--primary:#2563eb;
+  --primary2:#7c3aed;--accent:#16a34a;--danger:#dc2626;--line:#e5e7eb;
+  --shadow:0 16px 45px rgba(25,40,80,.12)
+}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select,textarea{font:inherit} button{cursor:pointer;border:0}
+.top{background:linear-gradient(115deg,#111827,#173b75 58%,#5b21b6);color:#fff;padding:15px 5%;display:flex;justify-content:space-between;align-items:center;gap:16px;position:sticky;top:0;z-index:20}
+.brand{font-weight:900;font-size:22px;letter-spacing:.5px}.brand span{color:#86efac}
+.top-actions{display:flex;gap:10px;align-items:center}.pill,.lang{border-radius:999px;padding:9px 14px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.lang.active{background:#fff;color:#172033;font-weight:800}
+.hero{min-height:420px;padding:60px 6%;display:grid;grid-template-columns:1.15fr .85fr;gap:45px;align-items:center;background:radial-gradient(circle at 80% 20%,#dbeafe,transparent 35%),radial-gradient(circle at 20% 80%,#ede9fe,transparent 35%)}
+.badge{display:inline-block;background:#dbeafe;color:#1d4ed8;padding:8px 14px;border-radius:999px;font-weight:800}
+h1{font-size:clamp(38px,5vw,68px);line-height:1.02;margin:18px 0}.hero p{font-size:18px;line-height:1.7;color:#475569;max-width:680px}
+.cta{background:var(--primary);color:#fff;padding:14px 20px;border-radius:12px;font-weight:800;font-size:16px;box-shadow:0 8px 22px #2563eb44}
+.cta.alt{background:#fff;color:#1e3a8a;border:1px solid #bfdbfe}.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.flow-card{background:#fff;border-radius:26px;padding:22px;box-shadow:var(--shadow);border:1px solid #e8edf5}
+.flow-title{font-weight:900;font-size:20px;margin-bottom:15px}.flow{display:grid;gap:12px}.flow-step{display:flex;gap:15px;align-items:center;padding:13px;border-radius:14px;background:#f8fafc}.icon{width:45px;height:45px;display:grid;place-items:center;border-radius:12px;background:#e0e7ff;font-size:24px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}.stat{background:#fff;padding:15px;border-radius:15px;box-shadow:0 8px 25px #00000008}.stat b{font-size:22px;display:block}
+main{max-width:1350px;margin:auto;padding:30px 5%}.section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:30px 0 18px}.section-head h2{margin:0;font-size:30px}.section-head p{color:var(--muted);margin:7px 0 0}
+.order-app{display:grid;grid-template-columns:230px 1fr 330px;gap:22px;align-items:start}.side,.cart{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 10px 30px #1220520d}
+.side h3,.cart h3{margin-top:0}.table-box{background:#eff6ff;border:1px solid #bfdbfe;padding:15px;border-radius:15px;margin-bottom:18px}.table-box input{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;margin-top:8px}
+.cat{display:block;width:100%;text-align:left;padding:12px;border-radius:10px;background:transparent;color:#475569;margin:5px 0}.cat.active,.cat:hover{background:#eef2ff;color:#3730a3;font-weight:800}
+.menu-tools{display:flex;gap:10px;justify-content:space-between;margin-bottom:16px}.search{width:100%;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fff}.voice{min-width:48px;border-radius:12px;background:#ede9fe;color:#6d28d9;font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:17px}.food{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 28px #1720330a}.food-img{height:135px;display:grid;place-items:center;font-size:64px;background:linear-gradient(135deg,#fff7ed,#fee2e2)}.food:nth-child(3n) .food-img{background:linear-gradient(135deg,#ecfdf5,#dbeafe)}.food:nth-child(4n) .food-img{background:linear-gradient(135deg,#fefce8,#f3e8ff)}
+.food-body{padding:14px}.food-name{font-weight:900;font-size:16px}.food-sub{font-size:13px;color:var(--muted);margin:5px 0 12px;min-height:32px}.price-row{display:flex;justify-content:space-between;align-items:center}.price{font-weight:900;font-size:18px}.add{background:#e0e7ff;color:#3730a3;border-radius:9px;padding:8px 11px;font-weight:800}
+.cart{position:sticky;top:78px}.cart-items{display:grid;gap:10px;max-height:390px;overflow:auto}.cart-item{border-bottom:1px solid var(--line);padding:9px 0}.cart-item-top{display:flex;justify-content:space-between;gap:8px;font-weight:700}.mini{font-size:12px;color:var(--muted);margin-top:3px}.qty{display:flex;gap:8px;align-items:center;margin-top:8px}.qty button{width:27px;height:27px;border-radius:7px;background:#eef2ff;color:#3730a3;font-weight:900}.totals{border-top:1px dashed #cbd5e1;margin-top:15px;padding-top:12px}.total-line{display:flex;justify-content:space-between;margin:7px 0}.grand{font-size:20px;font-weight:900}.place{width:100%;background:var(--accent);color:#fff;padding:14px;border-radius:12px;font-weight:900;margin-top:12px}
+.ai-box{margin-top:25px;background:linear-gradient(125deg,#1e293b,#312e81);color:#fff;padding:22px;border-radius:20px}.ai-box h3{margin-top:0}.ai-row{display:flex;gap:8px}.ai-row input{flex:1;padding:12px;border-radius:10px;border:0}.ai-row button{padding:0 14px;border-radius:10px;background:#86efac;font-weight:900}.ai-result{margin-top:10px;color:#dbeafe;font-size:14px}
+.kitchen{margin-top:35px;background:#111827;color:#fff;padding:25px;border-radius:22px}.kitchen-top{display:flex;justify-content:space-between;align-items:center}.kitchen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px;margin-top:18px}.ticket{background:#fff;color:#172033;border-radius:15px;padding:16px}.ticket h4{margin:0}.status{display:inline-block;padding:5px 9px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:12px;font-weight:800;margin:8px 0}.ticket button{width:100%;padding:9px;border-radius:8px;background:#e0e7ff;color:#3730a3;font-weight:800}
+.feedback{margin-top:25px;padding:22px;background:#fff;border:1px solid var(--line);border-radius:20px}.stars button{font-size:30px;background:transparent;color:#cbd5e1}.stars button.selected{color:#f59e0b}
+.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;padding:20px;z-index:50}.modal.show{display:grid}.modal-box{background:#fff;width:min(520px,100%);border-radius:20px;padding:24px;max-height:90vh;overflow:auto}.modal-box h2{margin-top:0}.option{display:flex;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:10px;margin:8px 0}.modal-actions{display:flex;gap:10px;justify-content:end;margin-top:20px}.cancel{padding:12px 16px;border-radius:10px;background:#f1f5f9}.confirm{padding:12px 16px;border-radius:10px;background:var(--accent);color:#fff;font-weight:900}
+.empty{color:#94a3b8;text-align:center;padding:25px 0}.toast{position:fixed;right:20px;bottom:20px;background:#172033;color:#fff;padding:14px 18px;border-radius:12px;display:none;z-index:80;box-shadow:var(--shadow)}
+footer{padding:35px 6%;margin-top:45px;background:#0f172a;color:#cbd5e1;text-align:center}
+.feedback-card{padding:13px;border:1px solid var(--line);border-radius:12px;margin:10px 0;background:#f8fafc}
+.feedback-card .rating-view{color:#f59e0b;font-size:18px}
+.feedback-stat{background:#eff6ff;border-radius:12px;padding:12px;text-align:center}
+.feedback-stat b{display:block;font-size:20px;color:#1d4ed8}
+#qrVideo{transform:scaleX(-1)}
+.qr-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:20px}
+.qr-card{background:#fff;border:1px solid #dbe3ef;border-radius:18px;padding:15px;text-align:center;box-shadow:0 8px 25px rgba(15,23,42,.07)}
+.qr-card img{width:125px;height:125px;image-rendering:pixelated}
+.qr-card b{display:block;margin:8px 0}
+.qr-card button{padding:8px 10px;border-radius:8px;background:#e0e7ff;color:#3730a3;font-weight:800;width:100%}
+@media(max-width:1000px){.hero{grid-template-columns:1fr}.order-app{grid-template-columns:190px 1fr}.cart{grid-column:1/-1;position:relative;top:auto}.cart-items{max-height:260px}}
+@media(max-width:680px){.top{padding:12px 4%}.brand{font-size:17px}.hero{padding:40px 6%}.stats{grid-template-columns:1fr}.order-app{grid-template-columns:1fr}.side{display:flex;gap:5px;overflow:auto}.side h3,.table-box{display:none}.cat{min-width:max-content}.grid{grid-template-columns:repeat(2,1fr);gap:10px}.food-img{height:100px;font-size:48px}.food-body{padding:10px}.hero h1{font-size:40px}}
+
+.feature-bar{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}.feature-btn{padding:11px 14px;border-radius:12px;background:#fff;border:1px solid var(--line);font-weight:800;color:#334155}.feature-btn:hover{background:#eef2ff;color:#3730a3}.specials{margin:20px 0;padding:20px;border-radius:20px;background:linear-gradient(120deg,#fff7ed,#fef3c7);border:1px solid #fed7aa}.special-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px}.special-card{background:#fff;padding:14px;border-radius:14px;border:1px solid #fde68a}.special-card b{display:block}.fav{background:transparent;font-size:22px;color:#94a3b8}.fav.on{color:#ef4444}.stock-badge{display:inline-block;font-size:11px;padding:4px 7px;border-radius:999px;background:#dcfce7;color:#166534;font-weight:800}.stock-badge.off{background:#fee2e2;color:#b91c1c}.food-actions{display:flex;align-items:center;gap:6px}.track{margin-top:25px;padding:20px;border-radius:20px;background:#fff;border:1px solid var(--line)}.trackline{display:flex;justify-content:space-between;gap:6px;margin-top:15px}.trackstep{flex:1;text-align:center;font-size:12px;color:#94a3b8}.trackstep.done{color:#166534;font-weight:800}.trackdot{width:30px;height:30px;border-radius:50%;margin:0 auto 7px;background:#e2e8f0;display:grid;place-items:center}.trackstep.done .trackdot{background:#bbf7d0}.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}.dash-card{padding:15px;border:1px solid var(--line);border-radius:14px;background:#f8fafc}.dash-card b{font-size:24px;display:block}.pay-option{cursor:pointer}.pay-option.selected{border:2px solid #2563eb;background:#eff6ff}.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.admin-tabs button{padding:9px 12px;border-radius:9px;background:#eef2ff;color:#3730a3;font-weight:800}.bar{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;background:#2563eb}.timer{font-weight:900;color:#b45309}.priority{border:2px solid #f59e0b!important}.login-choice{display:grid;gap:10px}.login-choice button{padding:14px;border-radius:12px;border:1px solid var(--line);background:#f8fafc;font-weight:800;text-align:left}.invoice{background:#fff;border:1px dashed #94a3b8;padding:18px;border-radius:12px}.invoice table{width:100%;border-collapse:collapse}.invoice td{padding:7px;border-bottom:1px solid #e5e7eb}.small-btn{padding:7px 9px;border-radius:8px;background:#e0e7ff;color:#3730a3;font-weight:800}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Smart<span>Serve</span> AI</div>
+  <div class="top-actions">
+    <button class="pill" onclick="openQRScanner()">📷 <span id="scanQrText">Scan QR</span></button>
+    <button class="pill" onclick="openFeedbackDashboard()">📊 <span id="adminFeedbackText">Feedback</span></button>
+    <span class="pill">📍 <span id="tableTop">Table 7</span></span>
+    <button class="lang active" id="enBtn" onclick="setLang('en')">English</button>
+    <button class="lang" id="taBtn" onclick="setLang('ta')">தமிழ்</button>
+  </div>
+</header>
+
+<section class="hero">
+ <div>
+   <span class="badge" id="heroBadge">AI-POWERED SMART QR ORDERING</span>
+   <h1 id="heroTitle">Scan. Customize. Order.<br><span style="color:#2563eb">Serve Smarter.</span></h1>
+   <p id="heroText">A complete smart restaurant ordering experience with QR menus, AI-assisted ordering, bilingual support, customization, order verification and a live kitchen dashboard.</p>
+   <div class="hero-btns"><button class="cta" onclick="document.getElementById('ordering').scrollIntoView({behavior:'smooth'})" id="startBtn">Start Ordering →</button><button class="cta alt" onclick="showSystem()" id="systemBtn">View System Flow</button></div>
+   <div class="stats"><div class="stat"><b>₹ INR</b><span id="stat1">Indian pricing</span></div><div class="stat"><b>EN + தமிழ்</b><span id="stat2">Bilingual ordering</span></div><div class="stat"><b>⚡ Live</b><span id="stat3">Kitchen updates</span></div></div>
+ </div>
+ <div class="flow-card">
+   <div class="flow-title">⚙️ AI Processing Engine</div>
+   <div class="flow">
+     <div class="flow-step"><div class="icon">📱</div><div><b>1. QR Scan</b><br><small>Table-specific ordering</small></div></div>
+     <div class="flow-step"><div class="icon">🧠</div><div><b>2. Understand Intent</b><br><small>Text / voice + Tamil / English</small></div></div>
+     <div class="flow-step"><div class="icon">🧩</div><div><b>3. Detect Missing Details</b><br><small>Ask for customization</small></div></div>
+     <div class="flow-step"><div class="icon">✅</div><div><b>4. Verify Order</b><br><small>Customer confirms final order</small></div></div>
+     <div class="flow-step"><div class="icon">👨‍🍳</div><div><b>5. Kitchen Receives</b><br><small>Prepare & serve</small></div></div>
+   </div>
+ </div>
+</section>
+
+<section style="padding:30px 6%;background:#eef4ff;text-align:center">
+  <h2 style="margin:0 0 8px">📱 Scan Your Table QR Code</h2>
+  <p style="color:#64748b">There are 10 tables. Each table has its own unique QR code. Scan the QR code to automatically select your table.</p>
+  <button class="cta" onclick="openQRScanner()">📷 Open Camera & Scan QR</button>
+  <div class="qr-gallery">
+    <div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABTUlEQVR4nO2YSW7EMAwEq4P8/8uVAyl7giC5WXTgGWMMWX1QcxG3yJ+/j7/hN/7G/zX+CaSWxkjAY2ee3w75EUoLRiSeO9P8tshfRsdoOh6mtTLNbycegiT+gl99/jTecpuh8yfw8v8lOTEl/vKBaX5b5G+Dx36OnXl+O+Q/77vp/7bz74CHhFTcc+X/kCfkv8LtyA8QiEDwNvyuxU3QiJFaLU3cgt+VeF5qP6ibH+yteX578h9CWT3m0MQT7F/5z6Bpkdv/cwt+W/y/Yr4QVv3Dg+r/KIlJN0Gg+Az/72ZnhfxX8+cJ+e+12auMH3OG/3F+V+Po0oBAfYg1ENBpflvi/7f5D55xYJ7fnvy/5j/d+Bz94Dy/nXhMl7/HnbgVvyvwzx87EdPD4Hl+e+R3vc/Bd3dD0/z21L+1XjmvSkFvwW9n/p84/42/8Un8C0cWi+o3JcHIAAAAAElFTkSuQmCC" alt="QR Code Table 1">
+      <b>Table 1</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(1)">Download QR</button>
+    </div>
+<div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABQklEQVR4nO2YyY7DMAxDyaL//8tvDrJqt8D0ZimFkwSBYx5MLdFm9PV6fIdv/MZ/Gn9KciwxlpBF7vTzq5BfSJJTEaGF2GnnVyK/UmKRWsidbn6VOOH4/IfvPr8Dfy5ry3pFg6Lzu/GQn/Xtue7nVyL/MLkZ9+IE3fx24+bjy3iNAN38SvI/mfkwEqmGE/L/QxIWAslrBERchN9OPOzvMHqm/vi+BL8S+4/HYfP4+31G/ZP535KIQGAJe2igm19F/PdsenLBWfVvmhuH20cOPKb/QcZouLyX8NfOr6j/y94/1hpzgAvwq6z/MgaMTIgPiH/r/GckP69a6eZXggNM35/lwFX4bcQ/5j8xBIgi+KD8Ny/iL4DhAFfjtxOPDCiDfJb/p/MzB79jt5tfTf0rKWteZxugI/r/9/lP/fk3fuOd+B9Th3z51CJYfQAAAABJRU5ErkJggg==" alt="QR Code Table 2">
+      <b>Table 2</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(2)">Download QR</button>
+    </div>
+<div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABTElEQVR4nO2YwZIDIQhEu1P7/7/ce2hQ95KbwNZMUpma8A42ioJQ+Pr5fMcvf/m/5j8A6FdRhLdDWvr1Vfhvp4l0n0pLv74S/0HPgehZ2JZ2fZWcAML9lvFH8DwCusYv5o7/cJmgCGpb2vWV+J8hL8Z3Wdr1Vfh/BrzXflu69d3mVP4IQDsWIPAB+f8DAIR3vQhKEgSI1BR9Fzm13+gS0FEgZ4JufTWcIAQtxzP6p+i7yx3pRFZA4i4DJui7zgWuzZ+HAT0DI/Rd5o54ZwBImQQ5RV8B95nvtf9TDwzRd41DsrvyQweApG59dfnPd95VD0U3oFtfRf27uj0i/SdnoV9fzfkvSV58IW9/z8h/Z/+HUf4xrgIT9FVyrz+hYytM0nefE5AYTZBH3H/MdxIk6AZwNEFm6LvHz/4P8xKImIIB+irzf8f4L395J/8FYKSL4etjlCMAAAAASUVORK5CYII=" alt="QR Code Table 3">
+      <b>Table 3</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(3)">Download QR</button>
+    </div>
+<div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABQElEQVR4nO2YMZbEIAxDpX25/5X/FrYJ20w3dvaRmYagAhmMZGz08ffzGX7xF//X+CXJMUTGOaiZcX4d8QupdgFL5p6Z5tcSvywhWZaFWTPz/HpxEB5cfxjH3m5///oDeOT/nyKAfWaaX0v894FjGW8pMM2vI/7t9G/ja1p/Gr+kZftx8Kn+h+h/mB05jszHLAOc5tcRv8P02IUgy4Bxfh14yB2ZB1H8VSHwBH7fxi3S+51hQyXFE/h9EzepfysJSvzOyX+tux8FIALnhjyE35dxXB6AfGD9a8oJtivwCH499V8ofqlf3oYj9H/v/7A2wCV/4/xa8j+7PXctdN+BaX5N9z9DJhtgUr2Bpvn14hbxR/gI/7v2j3r+3e2/cX498af3m+UCWJzw/tv7P9EHKP0LC5jm1/L+H1z/xV98Ev8FgBp69DoP1Y4AAAAASUVORK5CYII=" alt="QR Code Table 4">
+      <b>Table 4</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(4)">Download QR</button>
+    </div>
+<div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABR0lEQVR4nO2YS47DMAxDyUHuf+U3CyqOZxbdxUrhFChqiAtT1Y+W0cfPz2f4xV/8q/FDknNEsoQsLks3vxX+C0myDCrvy9LPb4n/ujxGmMnSzW8pbhAj+9ff34wjW6MdrL+/A0/+lwioyHNZ2vkt8b8iboQx5sqBbn4r/P8nAT1buvmtwBNsqzI/bcD2U/jdiR9K2WOc4Z/qP2ugm9/duIfS0akA6+xt5r+r4yfkgM58eAa/O/GKP/WVhHX2/w30/+h/iTcQGYQED+G3BM/Ud6YAGLZ4/wzclPxPOpDx9xx+N+FH/XrUv/Akgbr5rel/dU7jw+caYIP+N+9/GEmQebBD/c/7H2X4JfDso3/Hkwdn+2GNwujmtxTP38CpAXfI/z94lI+R7E36f/DEu94AuCTwDvrP15tvXvxuo//n+d9x/4u/eCf+C7xage8ODi0iAAAAAElFTkSuQmCC" alt="QR Code Table 5">
+      <b>Table 5</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(5)">Download QR</button>
+    </div>
+<div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABQklEQVR4nO2YsQ6EMAxD/dD9/y/7hiQVLGyXcCqFoaqHOiSNXbBux3EPv/iL/zX+kURMjbGQvFbm+XXEL0sS+Vp4rYzza4k/ki4Lqh2SX2WaX0/8MZCE0VkSpvl14hm3Gdp/Ao/8V+TCRPhVA9P8WuLPhON81so8v1/j+DLHIQFt+z8BRyDAwpT+I3bQv8QtWyhLH6vK4CH8fotjiCNvy+kCN/I/lomTH40frw4wza8Dj3SDbGl5QO/j//DpxCvrn0fwa9E/5Agelf/RJv7/kEr0owUaZxvcov+RN12n+zmlnx307+L/JFczKCmY5tfR/9bfnrA/aYBCEqf5Nem/8itE4HKV/zi/nvtv/v+pm8+6D87z68TTAWPt5f/WiHMQbph9+j8Vd5XACZvm1+N/Y45DAMMK+hH8OvV/Yv8Xf/FJ/AtOKH8AGVE1ogAAAABJRU5ErkJggg==" alt="QR Code Table 6">
+      <b>Table 6</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(6)">Download QR</button>
+    </div>
+<div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABR0lEQVR4nO2YzY7EIAyDP6/m/V/Ze0igzEo7N5KOaCu1CB9w+HFMZD4+P5/hB3/wr8ZfgKJpUH6unm5+FfFjACEbgTV7+vmVxM8VsWV56enmV4rL4Ln768dvxh1rrv/w3eN34LH/0wQsv2ELuvntxrFHqF7eiXXz241r8X8CPJWvZvw74HHgBdjCRgJJd+G3HZeEHN5HAEZ5LG7BbyMe+ocVJyHWHjFORje/Mv33iNhhftIHdfMr0T8N1RNghQhyhP+XlxyQjTkLN+BX5P89gsZgec5LN78y3NP6RAaI9Hcffpvw1H8tX2vxQN38Sv3flP4sghyw/9f6T+Y8DVU8pv4xqj3GCg88BaCbX5H+583fkQMu+9fOrxTPlR+X4hP2/x9cSvnTIfr/Vv9R3PzSAvsU/z/0P8JfaoAH5L81/3eM/+AP3on/AnF7g+V7yCyVAAAAAElFTkSuQmCC" alt="QR Code Table 7">
+      <b>Table 7</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(7)">Download QR</button>
+    </div>
+<div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABQUlEQVR4nO2Zy44CMQwEqxH//8u1hzwYdqW55bHKICEF12G6Q7AdE7l9ve7xwx/+r/kbSFkaMHKJrNc3wz/VsynGI30XVuub4p/UPUBirpHV+mbyYDDLnr8FD97y0c+fzMv5r5bFQPxEluub4r8f+YgxfiKr9c3w/7sF9BJZrW80j+0dwMtZkBxQ/yMQY0v/JdjXq/VN4YaW9pLUTfCI/ucFBE3N+lbf5fTvoW80l0QDIYG6dBt9o3lJeYJRQojknN9/yXntzmcJ1B5gB30TeDGd8u37l49+/jJeCh8STL/9wSn1v/d/9f7b+yHOOP/X+Q/wmYAcUv++5j+AMS0B7qBvzv03Nf0V86lXgR30zeS2RIiYHNH/vr8+2SoBqR3xan1zuJYa0Ho/aUOQPfSN49f5T63/fQZ+gv88//89/GD+A3w3fvtyOwghAAAAAElFTkSuQmCC" alt="QR Code Table 8">
+      <b>Table 8</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(8)">Download QR</button>
+    </div>
+<div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABQklEQVR4nO2YzY6EMAyD7dW8/yt/e3DKoF1pbiSMSrlAfajzQ+LU6OP6+Qw/+IN/Nf6S5LxiISOLtTPPr8N+IcULRhI+7Uzza7FfZTE2lQ7LB9P8OnEcL0ydP41byLKnzp/Ak/8JObao4reSYJpfi/0VcVPPsTPP72rcf/Wfqwo0nT+Nv6T0/KzUPyNXF5zm14HHaI6wxxn5vgO/y3FbxisPHB3g+/C7GHflvPzWPfJG+ieaHwRa7lCEwC34deDmNAFlDtjn/1emnlJASwnvEP+a/4zwMjtpcA9+XfNfoo9i/ioB8/w67F+d/2h6SK5bkGl+Lfovr1TT81kVT/Pr6X9QnS8qSGyV/6f7n5SCUoF34NeNg5CASoC78bsSJwXQIO+V/8fkx/vP1xbz33Hh+xZ9NQNoi/n/3/1P8/kP/uCT+C84BHz7Iova3AAAAABJRU5ErkJggg==" alt="QR Code Table 9">
+      <b>Table 9</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(9)">Download QR</button>
+    </div>
+<div class="qr-card">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4AQAAAADpqhamAAABSklEQVR4nO2YwQ4CIQxE35j9/18eDy1kjYk3WgyrkRDmwGDLdKjMz8/rN/zgD/7X+AUopgaN31zp5ldxfgwgZGT5ttLPr+T8CAyOQZ4r/fxqcSFhte3fi2tkf9P+HXjkv3MUyuiP/6GbX8n5M+FlLLDmSj+/1fhHwssa+le1/w648ouxI/6MHNiBXwGuGXWhUMJQgk34rcVlbImhf4J0A3vwW4iH/5OREWARRTCdcDe/GtwpfaF/cfm1Eb+1eAieZ9F3TI/Qv4soezjGuAeG9MHd/Erqv1IC4uqHEqQP6Oa3Gsf2SHiMsYf9Mba7+VX6vwy8hvbvwK/k/sfUjgJoZQ/ohPzXjHXM0voc0/+4939EtsDSCO3ArxJ3tv1SAY+o/3c8O6BWNAKOqP+f/R/kfAZwUvwl3V5/QDwJt+G3EP9qeBbv/+AP3om/AW37hfgg9aAQAAAAAElFTkSuQmCC" alt="QR Code Table 10">
+      <b>Table 10</b>
+      <small style="display:block;color:#64748b;margin-bottom:8px">Scan to order</small>
+      <button onclick="downloadQR(10)">Download QR</button>
+    </div>
+  </div>
+</section>
+<main id="ordering">
+ <div class="section-head"><div><h2 id="menuTitle">Digital Menu</h2><p id="menuSub">Choose your food and customize your order.</p></div><div class="pill" style="background:#ecfdf5;color:#166534;border:1px solid #bbf7d0">● <span id="liveText">Kitchen Online</span></div></div>
+ <div class="feature-bar">
+<button class="feature-btn" onclick="openCustomerLogin()">👤 Customer / Guest Login</button>
+<button class="feature-btn" onclick="showFavorites()">❤️ Favourites</button>
+<button class="feature-btn" onclick="showTodaySpecial()">🔥 Today's Special</button>
+<button class="feature-btn" onclick="showOrderTracking()">📦 Live Order Tracking</button>
+<button class="feature-btn" onclick="openAdminLogin()">👨‍💼 Admin Login</button>
+</div>
+<section class="specials" id="specialsSection">
+<h3 style="margin:0">🔥 Today's Special</h3><div class="special-grid" id="specialGrid"></div>
+</section>
+<div class="order-app">
+  <aside class="side">
+   <h3 id="browseTitle">Browse Menu</h3>
+   <div class="table-box"><b id="tableLabel">Table Number</b><input type="number" min="1" value="7" id="tableInput" onchange="setTable(this.value)"></div>
+   <button class="cat active" onclick="filterCat('all',this)" data-en="🍽️ All Items" data-ta="🍽️ அனைத்து உணவுகள்">🍽️ All Items</button>
+   <button class="cat" onclick="filterCat('tiffin',this)" data-en="🥞 Tiffin" data-ta="🥞 டிபன்">🥞 Tiffin</button>
+   <button class="cat" onclick="filterCat('meals',this)" data-en="🍛 Meals" data-ta="🍛 உணவு">🍛 Meals</button>
+   <button class="cat" onclick="filterCat('biryani',this)" data-en="🍗 Biryani" data-ta="🍗 பிரியாணி">🍗 Biryani</button>
+   <button class="cat" onclick="filterCat('drinks',this)" data-en="🥤 Drinks" data-ta="🥤 பானங்கள்">🥤 Drinks</button>
+  </aside>
+
+  <section>
+    <div class="menu-tools"><input class="search" id="search" oninput="renderMenu()" placeholder="Search dishes..."><button class="voice" onclick="voiceOrder()" title="Voice Order">🎙️</button></div>
+    <div class="grid" id="menuGrid"></div>
+    <div class="ai-box">
+      <h3 id="aiTitle">🤖 Ask SmartServe AI</h3>
+      <div class="ai-row"><input id="aiInput" placeholder="Try: 2 dosa and one filter coffee / இரண்டு தோசை வேண்டும்"><button onclick="askAI()" id="aiSend">Ask</button></div>
+      <div class="ai-result" id="aiResult">I can understand simple Tamil and English food orders and add matching items to your cart.</div>
+    </div>
+  </section>
+
+  <aside class="cart">
+   <h3 id="cartTitle">🛒 Your Order</h3>
+   <div id="cartItems" class="cart-items"></div>
+   <div class="totals">
+    <div class="total-line"><span id="subtotalLabel">Subtotal</span><b id="subtotal">₹0</b></div>
+    <div class="total-line"><span id="taxLabel">GST (5%)</span><b id="tax">₹0</b></div>
+    <div class="total-line grand"><span id="totalLabel">Total</span><span id="total">₹0</span></div>
+   </div>
+   <button class="place" onclick="openVerification()" id="reviewBtn">Review & Confirm Order</button>
+  </aside>
+ </div>
+
+ <section class="kitchen">
+   <div class="kitchen-top"><div><h2 id="kitchenTitle">👨‍🍳 Live Kitchen Dashboard</h2><p id="kitchenSub">Orders appear here after customer confirmation.</p></div><button class="cta alt" onclick="renderKitchen()" style="color:#111827" id="refreshBtn">Refresh</button></div>
+   <div id="kitchenGrid" class="kitchen-grid"></div>
+ </section>
+
+ <section class="track" id="trackingPanel">
+   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h2 style="margin:0">📦 Live Order Tracking</h2><p style="margin:6px 0;color:#64748b">Track your latest order status and estimated waiting time.</p></div><button class="small-btn" onclick="showOrderTracking()">Refresh</button></div>
+   <div id="trackingContent"></div>
+ </section>
+
+ <section class="feedback">
+  <h2 id="feedbackTitle">⭐ Feedback & Learning</h2><p id="feedbackText">Rate your ordering experience. Your feedback helps improve recommendations.</p>
+  <div class="stars" id="stars"></div>
+  <textarea id="feedbackInput" style="width:100%;min-height:80px;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:10px" placeholder="Write feedback (optional)"></textarea>
+  <button class="cta" style="margin-top:10px" onclick="submitFeedback()" id="feedbackBtn">Submit Feedback</button>
+ </section>
+</main>
+
+<div class="modal" id="customModal"><div class="modal-box"><h2 id="customTitle">Customize Item</h2><div id="customContent"></div><div class="modal-actions"><button class="cancel" onclick="closeModal()" id="cancelBtn">Cancel</button><button class="confirm" onclick="confirmCustomization()" id="addCartBtn">Add to Cart</button></div></div></div>
+<div class="modal" id="verifyModal"><div class="modal-box"><h2 id="verifyTitle">Verify Your Final Order</h2><div id="verifyContent"></div><div class="modal-actions"><button class="cancel" onclick="closeVerify()" id="editBtn">Edit Order</button><button class="confirm" onclick="openPayment()" id="confirmOrderBtn">Continue to Payment</button></div></div></div>
+<div class="modal" id="systemModal"><div class="modal-box"><h2>System Flow</h2><p><b>Customer Side → AI Processing Engine → Order Verification → Kitchen Side</b></p><p>Customer scans a table QR code, selects language, browses the digital menu, adds customizations through text or voice, and reviews the final order. The order is structured and sent to the kitchen dashboard. Feedback is stored locally for future analytics simulation.</p><button class="confirm" onclick="document.getElementById('systemModal').classList.remove('show')">Close</button></div></div>
+<div class="modal" id="qrModal">
+  <div class="modal-box">
+    <h2>📷 Scan Table QR Code</h2>
+    <p>Click <b>Start Camera Scan</b>. Your browser will show a camera permission popup — select <b>Allow</b>. For privacy, a website cannot automatically allow the camera without your permission.</p>
+    <div id="scannerArea" style="background:#111827;border-radius:14px;overflow:hidden;min-height:220px;display:grid;place-items:center;color:white">
+      <video id="qrVideo" autoplay playsinline style="width:100%;max-height:350px;display:none"></video>
+      <div id="scannerMessage">Camera is ready to start.</div>
+    </div>
+    <div style="margin-top:15px">
+      <button class="cta" onclick="startQRScanner()">Start Camera Scan</button>
+    </div>
+    <p style="margin:18px 0 8px;color:#64748b">Demo option: Enter the table number manually</p>
+    <input id="manualQRTable" type="number" min="1" placeholder="Example: 7" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px">
+    <div class="modal-actions">
+      <button class="cancel" onclick="closeQRScanner()">Close</button>
+      <button class="confirm" onclick="applyManualQR()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="feedbackDashboard">
+  <div class="modal-box">
+    <h2>📊 Restaurant Feedback Dashboard</h2>
+    <p style="color:#64748b">This is where the restaurant owner/admin can view all customer feedback received.</p>
+    <div id="feedbackStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0"></div>
+    <div id="feedbackList"></div>
+    <div class="modal-actions">
+      <button class="cancel" onclick="closeFeedbackDashboard()">Close</button>
+      <button class="confirm" onclick="clearFeedback()">Clear Demo Data</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" id="customerLogin"><div class="modal-box"><h2>👤 Customer Login</h2><div class="login-choice"><button onclick="loginCustomer()">🔐 Login with Demo Customer</button><button onclick="guestLogin()">👤 Continue as Guest</button></div><div class="modal-actions"><button class="cancel" onclick="closeModalById('customerLogin')">Close</button></div></div></div>
+<div class="modal" id="paymentModal"><div class="modal-box"><h2>💳 Choose Payment Method</h2><div id="paymentOptions"><div class="option pay-option" onclick="selectPayment(this,'Cash')">💵 Cash on Counter</div><div class="option pay-option" onclick="selectPayment(this,'UPI')">📱 UPI</div><div class="option pay-option" onclick="selectPayment(this,'Card')">💳 Card</div></div><div class="modal-actions"><button class="cancel" onclick="closeModalById('paymentModal')">Back</button><button class="confirm" onclick="completePayment()">Pay & Generate Bill</button></div></div></div>
+<div class="modal" id="billModal"><div class="modal-box"><h2>🧾 Bill Generated</h2><div id="billContent"></div><div class="modal-actions"><button class="cancel" onclick="closeModalById('billModal')">Close</button><button class="confirm" onclick="window.print()">Print Bill</button></div></div></div>
+<div class="modal" id="adminLogin"><div class="modal-box"><h2>👨‍💼 Admin Login</h2><p style="color:#64748b;font-size:13px">Demo mode uses the local session only. Production authentication is provided by the backend API and never accepts frontend credentials.</p><input id="adminUser" placeholder="Email or staff ID" autocomplete="username" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;margin:6px 0"><input id="adminPass" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;margin:6px 0"><div class="modal-actions"><button class="cancel" onclick="closeModalById('adminLogin')">Cancel</button><button class="confirm" onclick="adminLogin()">Login</button></div></div></div>
+<div class="modal" id="adminDashboard"><div class="modal-box" style="width:min(900px,100%)"><h2>📊 Admin Sales Dashboard</h2><div class="admin-tabs"><button onclick="renderAdmin('sales')">Sales</button><button onclick="renderAdmin('popular')">Most Ordered</button><button onclick="renderAdmin('feedback')">Advanced Feedback</button><button onclick="renderAdmin('stock')">Stock</button></div><div id="adminContent"></div><div class="modal-actions"><button class="cancel" onclick="closeModalById('adminDashboard')">Close</button></div></div></div>
+<div class="modal" id="favoritesModal"><div class="modal-box"><h2>❤️ Favourite Items</h2><div id="favoritesContent"></div><div class="modal-actions"><button class="cancel" onclick="closeModalById('favoritesModal')">Close</button></div></div></div>
+
+<div class="toast" id="toast"></div>
+
+<footer>SmartServe AI • AI-Powered Smart QR Ordering & Customization System • English + தமிழ் • ₹ Indian Rupees</footer>
+
+<script>
+const foods=[
+ {id:1,cat:'tiffin',en:'Masala Dosa',ta:'மசாலா தோசை',descEn:'Crispy dosa with potato masala',descTa:'உருளைக்கிழங்கு மசாலாவுடன் கிரிஸ்பி தோசை',price:90,emoji:'🥞'},
+ {id:2,cat:'tiffin',en:'Idli (2 pcs)',ta:'இட்லி (2)',descEn:'Soft steamed idli with sambar',descTa:'சாம்பாருடன் மென்மையான இட்லி',price:50,emoji:'🍘'},
+ {id:3,cat:'tiffin',en:'Ghee Podi Dosa',ta:'நெய் பொடி தோசை',descEn:'Dosa with ghee and spicy podi',descTa:'நெய் மற்றும் கார பொடியுடன் தோசை',price:110,emoji:'🫓'},
+ {id:4,cat:'meals',en:'South Indian Meals',ta:'தென்னிந்திய உணவு',descEn:'Rice, sambar, rasam and sides',descTa:'சாதம், சாம்பார், ரசம் மற்றும் சைட்ஸ்',price:150,emoji:'🍛'},
+ {id:5,cat:'meals',en:'Veg Fried Rice',ta:'வெஜ் ஃப்ரைட் ரைஸ்',descEn:'Fresh vegetables and aromatic rice',descTa:'புதிய காய்கறிகளுடன் மணமுள்ள சாதம்',price:140,emoji:'🍚'},
+ {id:6,cat:'biryani',en:'Chicken Biryani',ta:'சிக்கன் பிரியாணி',descEn:'Fragrant basmati rice with chicken',descTa:'சிக்கனுடன் மணமுள்ள பாஸ்மதி அரிசி',price:240,emoji:'🍗'},
+ {id:7,cat:'biryani',en:'Veg Biryani',ta:'வெஜ் பிரியாணி',descEn:'Spiced rice with garden vegetables',descTa:'காய்கறிகளுடன் சுவையான மசாலா சாதம்',price:180,emoji:'🥘'},
+ {id:8,cat:'drinks',en:'Filter Coffee',ta:'ஃபில்டர் காபி',descEn:'Traditional South Indian filter coffee',descTa:'பாரம்பரிய தென்னிந்திய ஃபில்டர் காபி',price:40,emoji:'☕'},
+ {id:9,cat:'drinks',en:'Rose Milk',ta:'ரோஸ் மில்க்',descEn:'Chilled sweet rose-flavoured milk',descTa:'குளிர்ந்த ரோஸ் சுவை பால்',price:60,emoji:'🥤'},
+ {id:10,cat:'drinks',en:'Fresh Lime Soda',ta:'லைம் சோடா',descEn:'Refreshing sweet or salted lime soda',descTa:'இனிப்பு அல்லது உப்பு எலுமிச்சை சோடா',price:50,emoji:'🍋'}
+];
+let lang='en', category='all', cart=[], selectedFood=null, orders=JSON.parse(localStorage.getItem('smartserveOrders')||'[]'), rating=0;
+const T={
+en:{heroBadge:'AI-POWERED SMART QR ORDERING',heroTitle:'Scan. Customize. Order.<br><span style="color:#2563eb">Serve Smarter.</span>',heroText:'A complete smart restaurant ordering experience with QR menus, AI-assisted ordering, bilingual support, customization, order verification and a live kitchen dashboard.',startBtn:'Start Ordering →',systemBtn:'View System Flow',stat1:'Indian pricing',stat2:'Bilingual ordering',stat3:'Kitchen updates',menuTitle:'Digital Menu',menuSub:'Choose your food and customize your order.',liveText:'Kitchen Online',browseTitle:'Browse Menu',tableLabel:'Table Number',search:'Search dishes...',aiTitle:'🤖 Ask SmartServe AI',aiSend:'Ask',cartTitle:'🛒 Your Order',subtotalLabel:'Subtotal',taxLabel:'GST (5%)',totalLabel:'Total',reviewBtn:'Review & Confirm Order',kitchenTitle:'👨‍🍳 Live Kitchen Dashboard',kitchenSub:'Orders appear here after customer confirmation.',refreshBtn:'Refresh',feedbackTitle:'⭐ Feedback & Learning',feedbackText:'Rate your ordering experience. Your feedback helps improve recommendations.',feedbackBtn:'Submit Feedback',feedbackPlaceholder:'Write feedback (optional)',customTitle:'Customize Item',cancelBtn:'Cancel',addCartBtn:'Add to Cart',verifyTitle:'Verify Your Final Order',editBtn:'Edit Order',confirmOrderBtn:'Confirm Order'},
+ta:{heroBadge:'AI மூலம் இயங்கும் ஸ்மார்ட் QR ஆர்டரிங்',heroTitle:'ஸ்கேன் செய்யுங்கள். மாற்றியமைக்குங்கள். ஆர்டர் செய்யுங்கள்.<br><span style="color:#2563eb">ஸ்மார்ட்டாக சேவை செய்யுங்கள்.</span>',heroText:'QR மெனு, AI உதவி, தமிழ் மற்றும் ஆங்கிலம், தனிப்பயனாக்கம், ஆர்டர் சரிபார்ப்பு மற்றும் நேரடி கிச்சன் டாஷ்போர்டுடன் முழுமையான ஸ்மார்ட் ஆர்டர் அனுபவம்.',startBtn:'ஆர்டர் செய்ய தொடங்குங்கள் →',systemBtn:'சிஸ்டம் ஃப்ளோ பார்க்க',stat1:'இந்திய ரூபாய் விலை',stat2:'இருமொழி ஆர்டர்',stat3:'நேரடி கிச்சன்',menuTitle:'டிஜிட்டல் மெனு',menuSub:'உங்களுக்கு விருப்பமான உணவை தேர்வு செய்து மாற்றியமைக்கவும்.',liveText:'கிச்சன் ஆன்லைனில் உள்ளது',browseTitle:'மெனு',tableLabel:'டேபிள் எண்',search:'உணவை தேடுங்கள்...',aiTitle:'🤖 SmartServe AI-யிடம் கேளுங்கள்',aiSend:'கேள்',cartTitle:'🛒 உங்கள் ஆர்டர்',subtotalLabel:'மொத்தம்',taxLabel:'GST (5%)',totalLabel:'இறுதி மொத்தம்',reviewBtn:'சரிபார்த்து உறுதிப்படுத்துங்கள்',kitchenTitle:'👨‍🍳 நேரடி கிச்சன் டாஷ்போர்டு',kitchenSub:'உறுதிப்படுத்திய ஆர்டர்கள் இங்கே வரும்.',refreshBtn:'புதுப்பிக்க',feedbackTitle:'⭐ கருத்து & மேம்பாடு',feedbackText:'உங்கள் ஆர்டர் அனுபவத்தை மதிப்பிடுங்கள்.',feedbackBtn:'கருத்தை அனுப்புங்கள்',feedbackPlaceholder:'கருத்தை எழுதுங்கள் (விருப்பம்)',customTitle:'உணவை மாற்றியமைக்கவும்',cancelBtn:'ரத்து',addCartBtn:'கார்ட்டில் சேர்க்க',verifyTitle:'இறுதி ஆர்டரை சரிபார்க்கவும்',editBtn:'ஆர்டரை மாற்று',confirmOrderBtn:'ஆர்டரை உறுதிப்படுத்து'}
+};
+function money(n){return '₹'+Math.round(n).toLocaleString('en-IN')}
+function setLang(l){lang=l;document.getElementById('enBtn').classList.toggle('active',l==='en');document.getElementById('taBtn').classList.toggle('active',l==='ta');const x=T[l];Object.keys(x).forEach(id=>{let el=document.getElementById(id);if(!el)return;if(id==='heroTitle')el.innerHTML=x[id];else if(id==='search'||id==='feedbackPlaceholder')el.placeholder=x[id];else el.textContent=x[id]});document.querySelectorAll('.cat').forEach(b=>b.textContent=b.dataset[l]);renderMenu();renderCart();renderKitchen()}
+function setTable(v){v=Math.max(1,Number(v)||1);document.getElementById('tableInput').value=v;document.getElementById('tableTop').textContent=lang==='ta'?'டேபிள் '+v:'Table '+v}
+function filterCat(c,el){category=c;document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderMenu()}
+function renderMenu(){const q=document.getElementById('search').value.toLowerCase();const list=foods.filter(f=>(category==='all'||f.cat===category)&&((f.en+' '+f.ta).toLowerCase().includes(q)));document.getElementById('menuGrid').innerHTML=list.map(f=>`<article class="food"><div class="food-img">${f.emoji}</div><div class="food-body"><div class="food-name" style="display:flex;justify-content:space-between;gap:6px"><span>${lang==='en'?f.en:f.ta}</span><button class="fav ${isFav(f.id)?'on':''}" onclick="toggleFavorite(${f.id})" title="Favourite">${isFav(f.id)?'♥':'♡'}</button></div><div class="food-sub">${lang==='en'?f.descEn:f.descTa}</div><div style="margin-bottom:10px"><span class="stock-badge ${f.stock<=0?'off':''}">${f.stock<=0?'Out of Stock':f.stock+' available'}</span></div><div class="price-row"><span class="price">${money(f.price)}</span><button class="add" ${f.stock<=0?'disabled':''} onclick="openCustomization(${f.id})">${f.stock<=0?'Unavailable':(lang==='en'?'+ Add':'சேர் +')}</button></div></div></article>`).join('')}
+function openCustomization(id){selectedFood=foods.find(x=>x.id===id);document.getElementById('customTitle').textContent=(lang==='en'?'Customize: ':'மாற்றியமைக்கவும்: ')+(lang==='en'?selectedFood.en:selectedFood.ta);document.getElementById('customContent').innerHTML=[
+ ['Spice Level','கார அளவு',['Normal','Less Spicy','Extra Spicy']],
+ ['Special Preference','சிறப்பு விருப்பம்',['No Onion','Less Oil','Extra Cheese']]
+].map((o,i)=>`<div style="margin:14px 0"><b>${lang==='en'?o[0]:o[1]}</b>${o[2].map((v,j)=>`<label class="option"><span>${v}</span><input type="${i===0?'radio':'checkbox'}" name="opt${i}" value="${v}" ${i===0&&j===0?'checked':''}></label>`).join('')}</div>`).join('');document.getElementById('customModal').classList.add('show')}
+function closeModal(){document.getElementById('customModal').classList.remove('show')}
+function confirmCustomization(){let opts=[];document.querySelectorAll('#customContent input:checked').forEach(i=>opts.push(i.value));cart.push({key:Date.now()+Math.random(),id:selectedFood.id,qty:1,opts});closeModal();renderCart();toast(lang==='en'?'Added to cart':'கார்ட்டில் சேர்க்கப்பட்டது')}
+function renderCart(){const wrap=document.getElementById('cartItems');if(!cart.length){wrap.innerHTML=`<div class="empty">${lang==='en'?'Your cart is empty':'உங்கள் கார்ட் காலியாக உள்ளது'}</div>`}else wrap.innerHTML=cart.map((c,i)=>{let f=foods.find(x=>x.id===c.id);return `<div class="cart-item"><div class="cart-item-top"><span>${lang==='en'?f.en:f.ta}</span><span>${money(f.price*c.qty)}</span></div><div class="mini">${c.opts.join(' • ')||'-'}</div><div class="qty"><button onclick="changeQty(${i},-1)">−</button><b>${c.qty}</b><button onclick="changeQty(${i},1)">+</button><button style="margin-left:auto;width:auto;padding:0 8px;background:#fee2e2;color:#b91c1c" onclick="removeCart(${i})">×</button></div></div>`}).join('');let sub=cart.reduce((s,c)=>s+foods.find(f=>f.id===c.id).price*c.qty,0),tax=sub*.05;document.getElementById('subtotal').textContent=money(sub);document.getElementById('tax').textContent=money(tax);document.getElementById('total').textContent=money(sub+tax)}
+function changeQty(i,d){cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);renderCart()}
+function removeCart(i){cart.splice(i,1);renderCart()}
+function openVerification(){if(!cart.length)return toast(lang==='en'?'Please add food items first':'முதலில் உணவுகளை சேர்க்கவும்');let sub=cart.reduce((s,c)=>s+foods.find(f=>f.id===c.id).price*c.qty,0),total=sub*1.05;document.getElementById('verifyContent').innerHTML=`<div class="table-box"><b>${lang==='en'?'Table':'டேபிள்'} ${document.getElementById('tableInput').value}</b></div>`+cart.map(c=>{let f=foods.find(x=>x.id===c.id);return `<div class="option"><span>${c.qty} × ${lang==='en'?f.en:f.ta}<br><small>${c.opts.join(', ')}</small></span><b>${money(f.price*c.qty)}</b></div>`}).join('')+`<h2 style="text-align:right">${money(total)}</h2>`;document.getElementById('verifyModal').classList.add('show')}
+function closeVerify(){document.getElementById('verifyModal').classList.remove('show')}
+function confirmOrder(){let sub=cart.reduce((s,c)=>s+foods.find(f=>f.id===c.id).price*c.qty,0);let order={id:'ORD'+String(Date.now()).slice(-6),table:document.getElementById('tableInput').value,items:JSON.parse(JSON.stringify(cart)),total:Math.round(sub*1.05),status:'New',time:new Date().toLocaleTimeString()};orders.unshift(order);localStorage.setItem('smartserveOrders',JSON.stringify(orders));cart=[];closeVerify();renderCart();renderKitchen();toast(lang==='en'?'Order confirmed! Sent to kitchen.':'ஆர்டர் உறுதிப்படுத்தப்பட்டது! கிச்சனுக்கு அனுப்பப்பட்டது.')}
+function renderKitchen(){let wrap=document.getElementById('kitchenGrid');if(!orders.length){wrap.innerHTML=`<div class="ticket"><h4>${lang==='en'?'No active orders yet':'தற்போது ஆர்டர்கள் இல்லை'}</h4></div>`;return}wrap.innerHTML=orders.filter(o=>o.status!=='Served').slice(0,9).map(o=>`<div class="ticket"><h4>${o.id}</h4><div>Table ${o.table} • ${o.time}</div><span class="status">${o.status}</span><div class="mini">${o.items.map(c=>{let f=foods.find(x=>x.id===c.id);return `${c.qty}× ${f.en}${c.opts.length?' ('+c.opts.join(', ')+')':''}`}).join('<br>')}</div><b style="display:block;margin:10px 0">${money(o.total)}</b><button onclick="nextStatus('${o.id}')">${o.status==='New'?'Start Preparing':o.status==='Preparing'?'Mark Ready':'Mark Served'}</button></div>`).join('')}
+function nextStatus(id){let o=orders.find(x=>x.id===id);o.status=o.status==='New'?'Preparing':o.status==='Preparing'?'Ready':'Served';localStorage.setItem('smartserveOrders',JSON.stringify(orders));renderKitchen();toast('Order '+o.status)}
+function askAI(){let q=document.getElementById('aiInput').value.toLowerCase(),found=[];foods.forEach(f=>{let words=[f.en.toLowerCase(),f.ta.toLowerCase()];if(words.some(w=>q.includes(w)||w.split(' ')[0].length>3&&q.includes(w.split(' ')[0])))found.push(f)});if(!found.length){const map=[['dosa',1],['தோச',1],['coffee',8],['காபி',8],['biryani',6],['பிரியாணி',6],['idli',2],['இட்லி',2]];map.forEach(([k,id])=>{if(q.includes(k)&&!found.some(f=>f.id===id))found.push(foods.find(f=>f.id===id))})}found.forEach(f=>cart.push({key:Date.now()+Math.random(),id:f.id,qty:1,opts:[]}));renderCart();document.getElementById('aiResult').textContent=found.length?(lang==='en'?`I understood and added: ${found.map(f=>f.en).join(', ')}. You can customize them from the cart or add more items.`:`நான் புரிந்து சேர்த்தது: ${found.map(f=>f.ta).join(', ')}.`):(lang==='en'?'I could not identify a menu item. Try mentioning dosa, idli, biryani or coffee.':'உணவை கண்டறிய முடியவில்லை. தோசை, இட்லி, பிரியாணி அல்லது காபி என்று முயற்சிக்கவும்.')}
+function voiceOrder(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast(lang==='en'?'Voice ordering is not supported in this browser.':'இந்த browser-ல் voice ordering ஆதரவு இல்லை.');return}let r=new SR();r.lang=lang==='ta'?'ta-IN':'en-IN';r.onstart=()=>toast(lang==='en'?'Listening...':'கேட்கிறது...');r.onresult=e=>{document.getElementById('aiInput').value=e.results[0][0].transcript;askAI()};r.start()}
+function submitFeedback(){
+  if(!rating){toast(lang==='en'?'Please select a star rating first':'முதலில் நட்சத்திர மதிப்பீட்டை தேர்வு செய்யவும்');return}
+  let text=document.getElementById('feedbackInput').value;
+  let arr=JSON.parse(localStorage.getItem('smartserveFeedback')||'[]');
+  arr.unshift({id:Date.now(),rating,text,table:document.getElementById('tableInput').value,time:new Date().toLocaleString()});
+  localStorage.setItem('smartserveFeedback',JSON.stringify(arr));
+  document.getElementById('feedbackInput').value='';
+  rating=0;for(let i=1;i<=5;i++)document.getElementById('star'+i).classList.remove('selected');
+  toast(lang==='en'?'Feedback received successfully!':'உங்கள் கருத்து வெற்றிகரமாக பெறப்பட்டது!');
+}
+function showSystem(){document.getElementById('systemModal').classList.add('show')}
+function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.tt);window.tt=setTimeout(()=>t.style.display='none',3000)}
+document.getElementById('stars').innerHTML=[1,2,3,4,5].map(n=>`<button onclick="setRating(${n})" id="star${n}">★</button>`).join('');
+function setRating(n){rating=n;for(let i=1;i<=5;i++)document.getElementById('star'+i).classList.toggle('selected',i<=n)}
+
+let qrStream=null, qrTimer=null;
+
+function openQRScanner(){
+  document.getElementById('qrModal').classList.add('show');
+  document.getElementById('scannerMessage').textContent='Press "Start Camera Scan" to scan your table QR code.';
+}
+function closeQRScanner(){
+  document.getElementById('qrModal').classList.remove('show');
+  stopQRScanner();
+}
+function stopQRScanner(){
+  if(qrTimer) clearInterval(qrTimer);
+  qrTimer=null;
+  if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null;}
+  const video=document.getElementById('qrVideo');
+  video.style.display='none';
+}
+async function startQRScanner(){
+  const msg=document.getElementById('scannerMessage');
+  const video=document.getElementById('qrVideo');
+  try{
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      msg.textContent='Camera scanning is not supported in this browser. Please use the demo table number option below.';
+      return;
+    }
+    document.getElementById('scannerMessage').textContent='Requesting camera permission... Please select Allow.';
+    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    video.srcObject=qrStream;
+    video.style.display='block';
+    msg.style.display='none';
+    await video.play();
+
+    if('BarcodeDetector' in window){
+      const detector=new BarcodeDetector({formats:['qr_code']});
+      qrTimer=setInterval(async()=>{
+        try{
+          const codes=await detector.detect(video);
+          if(codes.length && codes[0].rawValue){
+            handleQRValue(codes[0].rawValue);
+          }
+        }catch(e){}
+      },500);
+    }else{
+      toast('Camera opened. Your browser does not support automatic QR detection. Use the manual demo option below.');
+    }
+  }catch(e){
+    msg.textContent='Camera permission was not granted. Please enter the table number manually.';
+    toast('Camera permission is required for live scanning.');
+  }
+}
+function handleQRValue(value){
+  let raw=String(value).trim();
+  let match=raw.match(/(?:smartserve[-_\s]*)?table[-_\s:#]*(\d+)/i) ||
+            raw.match(/(?:tbl)[-_\s:#]*(\d+)/i);
+  let num=match?match[1]:raw.match(/\b(\d{1,2})\b/)?.[1];
+  if(num && Number(num)>=1 && Number(num)<=10){
+    setTable(num);
+    document.getElementById('tableInput').value=num;
+    closeQRScanner();
+    toast((lang==='en'?'QR scanned successfully! Table ':'QR வெற்றிகரமாக ஸ்கேன் செய்யப்பட்டது! டேபிள் ')+num);
+  }else{
+    toast('This QR code is not a valid SmartServe table QR.');
+  }
+}
+function applyManualQR(){
+  let n=document.getElementById('manualQRTable').value;
+  if(!n){toast('Please enter a table number');return;}
+  setTable(n);
+  document.getElementById('tableInput').value=n;
+  closeQRScanner();
+  toast((lang==='en'?'Table selected: ':'தேர்ந்தெடுக்கப்பட்ட டேபிள்: ')+n);
+}
+
+function openFeedbackDashboard(){
+  document.getElementById('feedbackDashboard').classList.add('show');
+  renderFeedbackDashboard();
+}
+function closeFeedbackDashboard(){
+  document.getElementById('feedbackDashboard').classList.remove('show');
+}
+function renderFeedbackDashboard(){
+  const arr=JSON.parse(localStorage.getItem('smartserveFeedback')||'[]');
+  const total=arr.length;
+  const avg=total?(arr.reduce((s,x)=>s+Number(x.rating||0),0)/total).toFixed(1):'0.0';
+  const five=arr.filter(x=>Number(x.rating)===5).length;
+  document.getElementById('feedbackStats').innerHTML=
+    `<div class="feedback-stat"><b>${total}</b>Total Feedback</div>
+     <div class="feedback-stat"><b>⭐ ${avg}</b>Average Rating</div>
+     <div class="feedback-stat"><b>${five}</b>5-Star Ratings</div>`;
+  const list=document.getElementById('feedbackList');
+  if(!total){list.innerHTML='<div class="empty">No feedback received yet.</div>';return;}
+  list.innerHTML=arr.map(f=>`<div class="feedback-card">
+    <div style="display:flex;justify-content:space-between;gap:10px"><b>Table ${f.table||'-'}</b><small>${f.time||''}</small></div>
+    <div class="rating-view">${'★'.repeat(Number(f.rating||0))}${'☆'.repeat(5-Number(f.rating||0))}</div>
+    <div style="margin-top:5px">${f.text||'<span style="color:#94a3b8">No written comment</span>'}</div>
+  </div>`).join('');
+}
+function clearFeedback(){
+  if(confirm('Clear all demo feedback?')){
+    localStorage.removeItem('smartserveFeedback');
+    renderFeedbackDashboard();
+    toast('Feedback data cleared');
+  }
+}
+
+
+function downloadQR(table){
+  const img=document.querySelector(`.qr-card:nth-child(${table}) img`);
+  const a=document.createElement('a');
+  a.href=img.src;
+  a.download=`SmartServe_Table_${table}_QR.png`;
+  a.click();
+}
+
+
+// Enhanced feature layer
+foods.forEach(f=>{if(f.stock===undefined)f.stock=f.id===6?7:15});
+const specialIds=[6,1,8];
+let currentUser=JSON.parse(localStorage.getItem('smartserveUser')||'null');
+let paymentMethod='';
+function openCustomerLogin(){document.getElementById('customerLogin').classList.add('show')}
+function loginCustomer(){currentUser={name:'Demo Customer',type:'customer'};localStorage.setItem('smartserveUser',JSON.stringify(currentUser));closeModalById('customerLogin');toast('Customer login successful')}
+function guestLogin(){currentUser={name:'Guest',type:'guest'};localStorage.setItem('smartserveUser',JSON.stringify(currentUser));closeModalById('customerLogin');toast('Continuing as Guest')}
+function closeModalById(id){document.getElementById(id).classList.remove('show')}
+function favs(){return JSON.parse(localStorage.getItem('smartserveFavs')||'[]')}
+function isFav(id){return favs().includes(id)}
+function toggleFavorite(id){let a=favs();a=a.includes(id)?a.filter(x=>x!==id):[...a,id];localStorage.setItem('smartserveFavs',JSON.stringify(a));renderMenu();toast(a.includes(id)?'Added to favourites':'Removed from favourites')}
+function showFavorites(){document.getElementById('favoritesModal').classList.add('show');let a=favs();document.getElementById('favoritesContent').innerHTML=a.length?foods.filter(f=>a.includes(f.id)).map(f=>`<div class="option"><span>❤️ ${f.en}</span><b>${money(f.price)}</b><button class="small-btn" onclick="openCustomization(${f.id});closeModalById('favoritesModal')">Add</button></div>`).join(''):'<div class="empty">No favourite items yet.</div>'}
+function showTodaySpecial(){document.getElementById('specialsSection').scrollIntoView({behavior:'smooth'});toast('Showing today\'s specials')}
+function renderSpecials(){document.getElementById('specialGrid').innerHTML=specialIds.map(id=>{let f=foods.find(x=>x.id===id);return `<div class="special-card"><b>${f.emoji} ${f.en}</b><span>${money(f.price)}</span><button class="small-btn" style="margin-top:9px" onclick="openCustomization(${f.id})">Add</button></div>`}).join('')}
+function latestOrder(){return orders[0]}
+function etaFor(o){if(!o)return 0;return o.status==='New'?20:o.status==='Preparing'?12:o.status==='Ready'?3:0}
+function showOrderTracking(){document.getElementById('trackingPanel').scrollIntoView({behavior:'smooth'});renderTracking()}
+function renderTracking(){let o=latestOrder(),w=document.getElementById('trackingContent');if(!o){w.innerHTML='<div class="empty">Place an order to see live tracking.</div>';return}let statuses=['New','Preparing','Ready','Served'];let idx=statuses.indexOf(o.status);w.innerHTML=`<div style="display:flex;justify-content:space-between;margin-top:14px"><b>${o.id}</b><span class="timer">⏱️ Estimated waiting: ${etaFor(o)} min</span></div><div class="trackline">${statuses.map((x,i)=>`<div class="trackstep ${i<=idx?'done':''}"><div class="trackdot">${i<=idx?'✓':'•'}</div>${x}</div>`).join('')}</div>`}
+function openPayment(){closeVerify();paymentMethod='';document.querySelectorAll('.pay-option').forEach(x=>x.classList.remove('selected'));document.getElementById('paymentModal').classList.add('show')}
+function selectPayment(el,m){paymentMethod=m;document.querySelectorAll('.pay-option').forEach(x=>x.classList.remove('selected'));el.classList.add('selected')}
+function completePayment(){if(!paymentMethod)return toast('Please select a payment method');let sub=cart.reduce((s,c)=>s+foods.find(f=>f.id===c.id).price*c.qty,0);let order={id:'ORD'+String(Date.now()).slice(-6),table:document.getElementById('tableInput').value,items:JSON.parse(JSON.stringify(cart)),total:Math.round(sub*1.05),status:'New',time:new Date().toLocaleTimeString(),payment:paymentMethod};orders.unshift(order);localStorage.setItem('smartserveOrders',JSON.stringify(orders));order.items.forEach(c=>{let f=foods.find(x=>x.id===c.id);f.stock=Math.max(0,f.stock-c.qty)});localStorage.setItem('smartserveStocks',JSON.stringify(Object.fromEntries(foods.map(f=>[f.id,f.stock]))));cart=[];closeModalById('paymentModal');renderCart();renderMenu();renderKitchen();renderTracking();generateBill(order);toast('Payment recorded and order sent to kitchen')}
+function generateBill(o){let rows=o.items.map(c=>{let f=foods.find(x=>x.id===c.id);return `<tr><td>${c.qty} × ${f.en}</td><td style="text-align:right">${money(f.price*c.qty)}</td></tr>`}).join('');document.getElementById('billContent').innerHTML=`<div class="invoice"><div style="text-align:center"><h3>SmartServe Restaurant</h3><div>Order ${o.id} • Table ${o.table}</div></div><table>${rows}<tr><td>GST (5%)</td><td style="text-align:right">${money(o.total-(o.items.reduce((s,c)=>s+foods.find(f=>f.id===c.id).price*c.qty,0)))}</td></tr><tr><td><b>Total</b></td><td style="text-align:right"><b>${money(o.total)}</b></td></tr></table><p>Payment: <b>${o.payment}</b></p></div>`;document.getElementById('billModal').classList.add('show')}
+function openAdminLogin(){document.getElementById('adminLogin').classList.add('show')}
+function adminLogin(){if(document.getElementById('adminUser').value==='admin'&&document.getElementById('adminPass').value==='admin123'){closeModalById('adminLogin');document.getElementById('adminDashboard').classList.add('show');renderAdmin('sales')}else toast('Invalid demo admin credentials')}
+function renderAdmin(tab){let c=document.getElementById('adminContent');let total=orders.reduce((s,o)=>s+o.total,0),served=orders.filter(o=>o.status==='Served').length;let counts={};orders.forEach(o=>o.items.forEach(i=>counts[i.id]=(counts[i.id]||0)+i.qty));let popular=Object.entries(counts).sort((a,b)=>b[1]-a[1]);let fb=JSON.parse(localStorage.getItem('smartserveFeedback')||'[]');if(tab==='sales'){c.innerHTML=`<div class="dashboard-grid"><div class="dash-card"><span>💰 Total Sales</span><b>${money(total)}</b></div><div class="dash-card"><span>📦 Orders</span><b>${orders.length}</b></div><div class="dash-card"><span>✅ Served</span><b>${served}</b></div><div class="dash-card"><span>⏳ Active</span><b>${orders.filter(o=>o.status!=='Served').length}</b></div></div>`}else if(tab==='popular'){c.innerHTML='<h3>🏆 Most Ordered Food</h3>'+(popular.length?popular.map(([id,n])=>{let f=foods.find(x=>x.id==id);let max=popular[0][1];return `<div style="margin:14px 0"><div style="display:flex;justify-content:space-between"><b>${f.en}</b><span>${n} orders</span></div><div class="bar"><i style="width:${n/max*100}%"></i></div></div>`}).join(''):'<div class="empty">No order data yet.</div>')}else if(tab==='feedback'){let avg=fb.length?(fb.reduce((s,x)=>s+x.rating,0)/fb.length).toFixed(1):'0.0';c.innerHTML=`<div class="dashboard-grid"><div class="dash-card"><span>⭐ Average Rating</span><b>${avg}</b></div><div class="dash-card"><span>💬 Total Feedback</span><b>${fb.length}</b></div><div class="dash-card"><span>😊 5-Star</span><b>${fb.filter(x=>x.rating===5).length}</b></div></div><h3 style="margin-top:20px">Recent Feedback</h3>`+(fb.length?fb.slice(0,8).map(x=>`<div class="feedback-card"><b>${'★'.repeat(x.rating)}${'☆'.repeat(5-x.rating)}</b><div>${x.text||'No written comment'}</div><small>Table ${x.table||'-'} • ${x.time||''}</small></div>`).join(''):'<div class="empty">No feedback yet.</div>')}else{c.innerHTML='<h3>❌ Out-of-Stock System</h3>'+foods.map(f=>`<div class="option"><span>${f.emoji} ${f.en}</span><span class="stock-badge ${f.stock<=0?'off':''}">${f.stock<=0?'Out of Stock':f.stock+' available'}</span><button class="small-btn" onclick="changeStock(${f.id},1)">+1</button><button class="small-btn" onclick="changeStock(${f.id},-1)">−1</button></div>`).join('')}}
+function changeStock(id,d){let f=foods.find(x=>x.id===id);f.stock=Math.max(0,f.stock+d);renderMenu();renderAdmin('stock')}
+function kitchenPriority(o){return o.status==='New'?0:o.status==='Preparing'?1:2}
+const originalRenderKitchen=renderKitchen;
+renderKitchen=function(){orders.sort((a,b)=>kitchenPriority(a)-kitchenPriority(b));originalRenderKitchen();document.querySelectorAll('.ticket').forEach(t=>{if(t.querySelector('.status')?.textContent==='New')t.classList.add('priority')});renderTracking()};
+renderSpecials();
+
+setLang('en');setTable(7);renderMenu();renderCart();renderKitchen();renderSpecials();renderTracking();
+
+/* SmartServe reliability layer.  The demo remains self-contained, while these
+   functions mirror the contracts used by the production API in server.js. */
+const DEMO_MODE = true;
+const TABLE_COUNT = 10;
+const GST_RATE = 0.05;
+const safeJson = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (_) { return fallback; } };
+const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+function validTable(value){ const n=Number(value); return Number.isInteger(n) && n>=1 && n<=TABLE_COUNT; }
+function tableFromUrl(){ const n=new URLSearchParams(location.search).get('table'); return validTable(n)?Number(n):null; }
+function persistTable(n){ sessionStorage.setItem('smartserve.table',String(n)); }
+function calcTotals(lines=cart){
+  const subtotal=lines.reduce((sum,line)=>{const food=foods.find(item=>item.id===Number(line.id));return sum+(food?food.price*Number(line.qty):0)},0);
+  const tax=Math.round(subtotal*GST_RATE*100)/100;
+  return {subtotal,tax,total:Math.round((subtotal+tax)*100)/100};
+}
+function orderRequestId(){ let id=sessionStorage.getItem('smartserve.requestId'); if(!id){id=crypto.randomUUID?crypto.randomUUID():'req-'+Date.now()+'-'+Math.random().toString(16).slice(2);sessionStorage.setItem('smartserve.requestId',id)} return id; }
+
+// QR codes are generated from the current origin and table URL, never from embedded images.
+function renderDynamicQRs(){
+  const gallery=document.querySelector('.qr-gallery'); if(!gallery)return;
+  gallery.innerHTML=Array.from({length:TABLE_COUNT},(_,i)=>{const table=i+1;const url=new URL('/order',location.origin);url.searchParams.set('table',table);const qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(url.href);return `<div class="qr-card"><img src="${qr}" alt="QR code for Table ${table}" loading="lazy"><b>Table ${table}</b><small style="display:block;color:#64748b;margin-bottom:8px">${esc(url.href)}</small><button onclick="downloadQR(${table})">Download QR</button><button class="small-btn" style="margin-top:6px" onclick="window.open('${url.href}','_blank')">Preview</button></div>`}).join('');
+}
+function setTable(v){ if(!validTable(v)){toast(lang==='en'?'Choose a valid table from 1 to 10.':'1 முதல் 10 வரை சரியான டேபிளை தேர்வு செய்யவும்.');return false;} const n=Number(v);document.getElementById('tableInput').value=n;document.getElementById('tableTop').textContent=lang==='ta'?'டேபிள் '+n:'Table '+n;persistTable(n);return true; }
+
+function loadStocks(){ const stored=safeJson('smartserveStocks',{}); foods.forEach(f=>{if(Number.isFinite(Number(stored[f.id])))f.stock=Math.max(0,Number(stored[f.id]));}); }
+function renderCart(){
+  const wrap=document.getElementById('cartItems');
+  wrap.innerHTML=cart.length?cart.map((c,i)=>{const f=foods.find(x=>x.id===Number(c.id));if(!f)return '';return `<div class="cart-item"><div class="cart-item-top"><span>${esc(lang==='en'?f.en:f.ta)}</span><span>${money(f.price*c.qty)}</span></div><div class="mini">${esc(c.opts?.join(' • ')||'-')}</div><div class="qty"><button aria-label="Decrease quantity" onclick="changeQty(${i},-1)">−</button><b>${c.qty}</b><button aria-label="Increase quantity" onclick="changeQty(${i},1)">+</button><button aria-label="Remove item" style="margin-left:auto;width:auto;padding:0 8px;background:#fee2e2;color:#b91c1c" onclick="removeCart(${i})">×</button></div></div>`}).join(''):`<div class="empty">${lang==='en'?'Your cart is empty':'உங்கள் கார்ட் காலியாக உள்ளது'}</div>`;
+  const t=calcTotals(); document.getElementById('subtotal').textContent=money(t.subtotal);document.getElementById('tax').textContent=money(t.tax);document.getElementById('total').textContent=money(t.total);
+}
+function changeQty(i,d){const line=cart[i], food=line&&foods.find(f=>f.id===Number(line.id));if(!food)return;if(d>0 && line.qty>=food.stock)return toast('Available stock limit reached');line.qty+=d;if(line.qty<=0)cart.splice(i,1);renderCart();}
+function openVerification(){
+  if(!cart.length)return toast(lang==='en'?'Please add food items first':'முதலில் உணவுகளை சேர்க்கவும்');
+  const table=Number(document.getElementById('tableInput').value);if(!validTable(table))return toast('Please select a valid table');
+  const t=calcTotals();document.getElementById('verifyContent').innerHTML=`<div class="table-box"><b>SmartServe Restaurant · Table ${table}</b><br><small>Order preview · payment is selected next</small></div>`+cart.map(c=>{const f=foods.find(x=>x.id===Number(c.id));return `<div class="option"><span>${c.qty} × ${esc(lang==='en'?f.en:f.ta)}<br><small>${esc(c.opts?.join(', ')||'No customizations')}</small></span><b>${money(f.price*c.qty)}</b></div>`}).join('')+`<div class="totals"><div class="total-line"><span>Subtotal</span><b>${money(t.subtotal)}</b></div><div class="total-line"><span>GST (5%)</span><b>${money(t.tax)}</b></div><div class="total-line grand"><span>Total</span><b>${money(t.total)}</b></div></div>`;document.getElementById('verifyModal').classList.add('show');
+}
+function parseAI(text){
+  const q=String(text||'').toLowerCase().trim();const quantityWords={one:1,two:2,three:3,four:4,five:5,ஒரு:1,இரண்டு:2,மூன்று:3};let budget=(q.match(/(?:under|below|within|கீழ்)\s*[₹rs.]?\s*(\d+)/i)||[])[1];let qty=Number((q.match(/\b(\d+)\b/)||[])[1])||Object.entries(quantityWords).find(([word])=>q.includes(word))?.[1]||1;let dietary=q.includes('vegetarian')||q.includes('veg')||q.includes('சைவ');let spicy=q.includes('spicy')||q.includes('காரம்');let candidates=foods.filter(f=>{const hay=(f.en+' '+f.ta).toLowerCase();return hay.split(/\s+/).some(word=>word.length>3&&q.includes(word))|| (q.includes('dosa')&&f.cat==='tiffin'&&f.en.toLowerCase().includes('dosa')) || (q.includes('coffee')&&f.en==='Filter Coffee') || (q.includes('biryani')&&f.cat==='biryani');});
+  candidates=candidates.filter(f=>(!dietary||f.en.toLowerCase().includes('veg')||f.cat==='tiffin'||f.cat==='drinks')&&(!budget||f.price<=Number(budget))); if(spicy)candidates=candidates.filter(f=>f.cat==='biryani'||f.en.includes('Podi')||f.en.includes('Dosa'));
+  return {items:candidates.slice(0,4).map(f=>({foodId:f.id,quantity:Math.min(qty,Math.max(1,f.stock)),customizations:[...(spicy?['Extra Spicy']:[]),...(q.includes('no onion')?['No Onion']:[]),...(q.includes('less')&&q.includes('spicy')?['Less Spicy']:[])]})),intent:(candidates.length?'order':'recommendation'),budget:budget?Number(budget):null};
+}
+function askAI(){const input=document.getElementById('aiInput');const parsed=parseAI(input.value);const result=document.getElementById('aiResult');if(!input.value.trim())return result.textContent='Tell me what you would like to order.';if(!parsed.items.length){result.textContent='I could not match that to an available menu item. Try “2 masala dosa and filter coffee”, “vegetarian under 200”, or “something spicy”.';return;}parsed.items.forEach(item=>{const f=foods.find(x=>x.id===item.foodId);cart.push({key:crypto.randomUUID?crypto.randomUUID():Date.now()+Math.random(),id:f.id,qty:item.quantity,opts:item.customizations});});renderCart();result.textContent=`I found: ${parsed.items.map(i=>foods.find(f=>f.id===i.foodId).en+' × '+i.quantity).join(', ')}. Review the cart before ordering.`;}
+
+function completePayment(){
+  if(!paymentMethod)return toast('Please select a payment method'); if(!cart.length)return toast('Your cart is empty'); if(window.orderSubmitting)return;
+  const table=Number(document.getElementById('tableInput').value);if(!validTable(table))return toast('Invalid table');const totals=calcTotals();
+  for(const line of cart){const f=foods.find(x=>x.id===Number(line.id));if(!f||line.qty<1||line.qty>f.stock)return toast(`${f?.en||'Item'} is no longer available in that quantity`);}
+  window.orderSubmitting=true;const now=new Date().toISOString();const orderId=crypto.randomUUID?crypto.randomUUID().slice(0,8).toUpperCase():String(Date.now()).slice(-8);const order={id:'ORD-'+orderId,requestId:orderRequestId(),table,items:typeof structuredClone==='function'?structuredClone(cart):JSON.parse(JSON.stringify(cart)),subtotal:totals.subtotal,tax:totals.tax,total:totals.total,status:'NEW',payment:paymentMethod,paymentStatus:'PAID_DEMO',createdAt:now,updatedAt:now,estimatedMinutes:20};
+  orders=[order,...orders.filter(x=>x.requestId!==order.requestId)];order.items.forEach(line=>{const f=foods.find(x=>x.id===Number(line.id));f.stock-=line.qty;});localStorage.setItem('smartserveOrders',JSON.stringify(orders));localStorage.setItem('smartserveStocks',JSON.stringify(Object.fromEntries(foods.map(f=>[f.id,f.stock]))));cart=[];closeModalById('paymentModal');renderCart();renderMenu();renderKitchen();renderTracking();generateBill(order);window.orderSubmitting=false;toast('Payment successful · order sent to kitchen');
+}
+function nextStatus(id){const o=orders.find(x=>x.id===id);if(!o)return;const next={NEW:'PREPARING',PREPARING:'READY',READY:'SERVED'}[o.status];if(!next)return;o.status=next;o.updatedAt=new Date().toISOString();localStorage.setItem('smartserveOrders',JSON.stringify(orders));localStorage.setItem('smartserve.event',Date.now());renderKitchen();renderTracking();toast('Order '+next.toLowerCase());}
+function renderKitchen(){const wrap=document.getElementById('kitchenGrid');const active=orders.filter(o=>o.status!=='SERVED').slice(0,12);if(!active.length){wrap.innerHTML=`<div class="ticket"><h4>${lang==='en'?'No active orders yet':'தற்போது ஆர்டர்கள் இல்லை'}</h4></div>`;return;}wrap.innerHTML=active.map(o=>`<div class="ticket ${o.status==='NEW'?'priority':''}"><h4>${esc(o.id)}</h4><div>Table ${o.table} · ${new Date(o.createdAt||Date.now()).toLocaleTimeString()}</div><span class="status">${o.status}</span><div class="mini">${o.items.map(c=>{const f=foods.find(x=>x.id===Number(c.id));return `${c.qty}× ${esc(f?.en||'Item')}${c.opts?.length?' ('+esc(c.opts.join(', '))+')':''}`}).join('<br>')}</div><b style="display:block;margin:10px 0">${money(o.total)}</b><button onclick="nextStatus('${esc(o.id)}')">${o.status==='NEW'?'Start Preparing':o.status==='PREPARING'?'Mark Ready':'Mark Served'}</button></div>`).join('');}
+function renderTracking(){const o=orders[0],w=document.getElementById('trackingContent');if(!o){w.innerHTML='<div class="empty">Place an order to see live tracking.</div>';return;}const statuses=['NEW','PREPARING','READY','SERVED'],idx=statuses.indexOf(o.status);w.innerHTML=`<div style="display:flex;justify-content:space-between;margin-top:14px"><b>${esc(o.id)}</b><span class="timer">⏱️ Estimated waiting: ${o.status==='NEW'?20:o.status==='PREPARING'?12:o.status==='READY'?3:0} min</span></div><div class="trackline">${statuses.map((s,i)=>`<div class="trackstep ${i<=idx?'done':''}"><div class="trackdot">${i<=idx?'✓':'•'}</div>${s}</div>`).join('')}</div>`;}
+function adminLogin(){if(!DEMO_MODE)return toast('Use the configured backend staff account');if(!document.getElementById('adminUser').value.trim()||!document.getElementById('adminPass').value)return toast('Enter the demo session fields');sessionStorage.setItem('smartserve.admin','demo-manager');closeModalById('adminLogin');document.getElementById('adminDashboard').classList.add('show');renderAdmin('sales');toast('Demo manager session started');}
+function downloadQR(table){const url=new URL('/order',location.origin);url.searchParams.set('table',table);window.open('https://api.qrserver.com/v1/create-qr-code/?size=600x600&data='+encodeURIComponent(url.href),'_blank');}
+window.addEventListener('storage',e=>{if(e.key==='smartserveOrders'){orders=safeJson('smartserveOrders',[]);renderKitchen();renderTracking();}});
+document.addEventListener('DOMContentLoaded',()=>{loadStocks();const urlTable=tableFromUrl();setTable(urlTable||Number(sessionStorage.getItem('smartserve.table'))||7);renderDynamicQRs();renderMenu();renderCart();renderKitchen();renderTracking();});
+</script>
+</body>
+</html>

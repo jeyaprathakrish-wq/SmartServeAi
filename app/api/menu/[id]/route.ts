@@ -1,0 +1,4 @@
+import { NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { requireStaff } from '@/lib/auth/server';
+export async function PATCH(request:Request, context:{params:Promise<{id:string}>}) { try { await requireStaff('MANAGER'); const {id}=await context.params; const input=await request.json(); if(typeof input.is_available!=='boolean')return NextResponse.json({error:'is_available must be boolean'},{status:400}); const admin=createAdminClient(); const result=await admin.from('menu_items').update({is_available:input.is_available,updated_at:new Date().toISOString()}).eq('id',id).select().single(); if(result.error)return NextResponse.json({error:result.error.message},{status:400}); return NextResponse.json({data:result.data}); } catch(error) { const message=error instanceof Error?error.message:'Request failed'; return NextResponse.json({error:message},{status:message==='Unauthorized'?401:403}); } }

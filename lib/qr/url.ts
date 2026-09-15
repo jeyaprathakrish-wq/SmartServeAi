@@ -1,0 +1,1 @@
+export function tableQrUrl(tableNumber: number) { const base = process.env.PUBLIC_APP_URL || 'http://localhost:3000'; const url = new URL('/order', base); url.searchParams.set('table', String(tableNumber)); return url.toString(); }

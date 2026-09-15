@@ -1,0 +1,2 @@
+import { createClient } from '@/lib/supabase/server';
+export async function requireStaff(role?: 'MANAGER'|'KITCHEN') { const supabase = await createClient(); const { data:{ user } } = await supabase.auth.getUser(); if (!user) throw new Error('Unauthorized'); const query = supabase.from('restaurant_staff').select('restaurant_id,role').eq('user_id', user.id); const { data } = role ? await query.eq('role', role) : await query; if (!data?.length) throw new Error('Forbidden'); return { user, staff:data[0] }; }
